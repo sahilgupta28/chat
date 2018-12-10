@@ -12,77 +12,13 @@ const Wallet = db.Wallet;
 
 module.exports = {
     authenticate,
-    getAll,
-    getById,
     create,
     update,
     delete: _delete,
     changePassword,
     getUserList,
     getUsersCount,
-    createPlayer,
-    LoginPlayer
 };
-
-
-
-async function createPlayer(userParam,req) {
-
-    console.log("UserParams",userParam);
-
-    let response={};
-
-    const vEmailMobile = await User.findOne({unique_id: userParam.unique_id});
-    console.log('checkByUniqueId',vEmailMobile);
-        if(vEmailMobile){
-        return {status:1000,message:'User is already Exist'};
-       }
-        const user = new User(userParam);
-        user.email='Player'+ Math.floor(Date.now())+'@70slots.com';
-        user.hash = bcrypt.hashSync("70slots@70slots.com", 10);
-        user.mobile = 000000000;
-    
-        user.role='PLAYER';
-        user.create_user_id=req.user.sub;
-        // save user
-        const result= await user.save();
-        console.log("fff",result);
-        
-    
-        if (result) {
-            const wallet = new Wallet(userParam);
-            wallet.user_id = result.id;
-            wallet.create_user_id=req.user.sub;
-
-            const walletResult = await wallet.save();
-                if (walletResult) {
-
-                    return {status:200,data:await Wallet.findById(walletResult.id).populate('user_id')};
-                    
-                }
-      }
- 
-}
-
-
-async function LoginPlayer(passkey,req) {
-
-
-    const user = await User.findOne({ unique_id:passkey });
-           if (user) {
-                const { hash, ...userWithoutHash } = user.toObject();
-                const token = jwt.sign({ sub: user.id }, config.secret);
-              return {
-                 ...userWithoutHash,
-                    token
-                };
-     }
-  
-}
-
-
-
-
 
 async function authenticate({ email, password }) {
 
@@ -152,57 +88,30 @@ async function changePassword(id,passwordPararm){
    }
 }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-async function getAll(page=0,id) {
-   var count= await User.find({ _id: { $ne: id } }).count();
-   console.log("ccc",count);
-   var pageSize=50;
-    var users= await User.find({ _id: { $ne: id } }).select('-hash').skip(page*pageSize).limit(pageSize);
-   return { status:200, users:users,pageCount:count, pageSize:pageSize,page:page};
-}
 
-async function getById(id) {
-    console.log("id is",id);
-    return await User.findById(id).select('-hash');
-}
 
-async function create(userParam,req) {
-    console.log("consoleldld",req.file);
-    // validate
+async function create(req) {
+    console.log(req.body);
+    userParam = req.body;
     const vEmailMobile = await User.findOne({email: userParam.email});
-
-    console.log('1111cccccccccsss');
-    console.log(vEmailMobile);
-
-    
     if (vEmailMobile) {
         throw 'User is already exist';
-
-        // const { ...userWithoutHash } = vEmailMobile.toObject();
-
-        //     const token = jwt.sign({ sub: vEmailMobile.id }, config.secret);
-        //     return {
-        //         ...userWithoutHash,
-        //         token
-        //     };
-        //throw 'email "' + userParam.email + '" is already taken or mobile "'+userParam.mobile+'" is already taken';
     }
 
      const user = new User(userParam);
+    //  if (req.file && req.file.path) {
+    //      console.log(req.file);
+    //     user.image_file = req.file.path;
+    //     }
 
-     if (req.file && req.file.path) {
-         console.log(req.file);
-        user.image_file = req.file.path;
-        }
-
-    // // hash password
+    // hash password
      if (userParam.password) {
          user.hash = bcrypt.hashSync(userParam.password, 10);
      }
 
-     user.create_user_id=req.user.sub;
+    //  user.create_user_id=req.user.sub;
 
-    // // save user
+    // // // save user
      const result = await user.save();
 
      const { hash, ...userWithoutHash } = result.toObject();

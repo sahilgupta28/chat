@@ -1,5 +1,5 @@
 ﻿{
-    "connectionString": "mongodb://localhost/vcab",
+    "connectionString": "mongodb://localhost/chat",
     "secret": "canbeanystringtoverifyjwttoken",
     "mailer":{
         "service": "GMAIL",
