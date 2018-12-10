@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Hello world</title>
+   </head>
+   <script src = "/socket.io/socket.io.js"></script>
+
+   
+   
+   <body>
+
+      <div id="results">    
+         This text will change     
+      </div>
+
+   </body>
+</html>
+
+
+<script>
+      // client code here
+      var socket = io.connect('localhost:4000');
+     
+      socket.on('message', function(data) {
+        document.getElementById("results").innerHTML = data.message;
+      });
+    </script>
